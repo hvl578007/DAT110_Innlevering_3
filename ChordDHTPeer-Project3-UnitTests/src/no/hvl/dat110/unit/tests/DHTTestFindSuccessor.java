@@ -31,6 +31,10 @@ class DHTTestFindSuccessor {
 		BigInteger key1 = Hash.hashOf("file10");
 		BigInteger key2 = Hash.hashOf("file20");
 		BigInteger key3 = Hash.hashOf("file31"); 
+
+		System.out.println(key1);
+		System.out.println(key2);
+		System.out.println(key3);
 		
 		// expected
 		BigInteger key1expected = new BigInteger("121411138451101288395601026024677976156");

@@ -19,7 +19,7 @@ public class FileDistributorClient {
 	public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
 
 		// use this node to distribute files to active peers
-		String path = "./files/";														// absolute path to the files
+		String path = "F:\\Skylagring\\OneDrive\\Dataing\\V2020_DAT110_workspace\\oblig3\\ChordDHTPeer-Project3-UnitTests\\files\\";														// absolute path to the files
 		String[] files = {"file1.txt","file2.txt","file3.txt","file4.txt","file5.txt"}; // we just limit to 5 files
 		
 		String node1 = "process1";														// this is the peer we want to use to resolve and distribute files

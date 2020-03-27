@@ -40,12 +40,21 @@ public class Util {
 		
 		// a formula to check whether an id falls within the set {lower, upper} using the address size as our bound (modulos operation)
 		// it modifies 'upper' and 'id' when lower > upper e.g. set (6, 2) in mod 10 = {6, 7, 8, 9, 0, 1, 2}
+		BigInteger modulo = Hash.addressSize();
+		BigInteger nullInt = new BigInteger("0");
 		
 		// implement: read the descriptions above
-		boolean cond = false;
-
+		boolean cond1 = nullInt.compareTo(lower) <= 0 && lower.compareTo(id) <= 0 && id.compareTo(upper) <= 0 && upper.compareTo(modulo) < 0;
 		
-		return cond;
+		//sjekke om lower ligg på slutten og id / upper ligg etter modulo/0?
+		boolean cond2 = lower.compareTo(modulo) < 0 && nullInt.compareTo(id) <= 0 && id.compareTo(upper) <= 0 && upper.compareTo(lower) < 0;
+
+		//sjekke om lower og id ligg på slutten og upper etter modulo/0?
+		boolean cond3 = lower.compareTo(id) <= 0 && id.compareTo(modulo) < 0 && nullInt.compareTo(upper) <= 0 && upper.compareTo(lower) < 0;
+
+		System.out.println("cond1: " + cond1 + ", cond2: " + cond2 + ", cond3: " + cond3);
+
+		return cond1 || cond2 || cond3;
 	}
 	
 	public static List<String> toString(List<NodeInterface> list) throws RemoteException {

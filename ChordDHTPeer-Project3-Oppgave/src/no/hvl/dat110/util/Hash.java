@@ -1,14 +1,6 @@
 package no.hvl.dat110.util;
 
-/**
- * project 3
- * @author tdoy
- *
- */
-
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -23,7 +15,6 @@ public class Hash {
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -51,7 +42,6 @@ public class Hash {
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

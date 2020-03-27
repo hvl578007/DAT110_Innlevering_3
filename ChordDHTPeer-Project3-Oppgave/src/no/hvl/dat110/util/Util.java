@@ -43,18 +43,28 @@ public class Util {
 		BigInteger modulo = Hash.addressSize();
 		BigInteger nullInt = new BigInteger("0");
 		
-		// implement: read the descriptions above
-		boolean cond1 = nullInt.compareTo(lower) <= 0 && lower.compareTo(id) <= 0 && id.compareTo(upper) <= 0 && upper.compareTo(modulo) < 0;
+		boolean cond = false;
 		
-		//sjekke om lower ligg på slutten og id / upper ligg etter modulo/0?
-		boolean cond2 = lower.compareTo(modulo) < 0 && nullInt.compareTo(id) <= 0 && id.compareTo(upper) <= 0 && upper.compareTo(lower) < 0;
+		// implement: read the descriptions above
 
-		//sjekke om lower og id ligg på slutten og upper etter modulo/0?
-		boolean cond3 = lower.compareTo(id) <= 0 && id.compareTo(modulo) < 0 && nullInt.compareTo(upper) <= 0 && upper.compareTo(lower) < 0;
+		//om lower > upper
+		if(lower.compareTo(upper) > 0) {
+			BigInteger nyUpper = upper.add(modulo);
 
-		System.out.println("cond1: " + cond1 + ", cond2: " + cond2 + ", cond3: " + cond3);
+			cond = lower.compareTo(id) <= 0 && id.compareTo(nyUpper) <= 0;
 
-		return cond1 || cond2 || cond3;
+			boolean cond2 = false;
+			//om id var "etter 0" og mindre enn den gamle upper (?)
+			if(id.compareTo(nullInt) >= 0 && id.compareTo(upper) <= 0) {
+				BigInteger nyId = id.add(modulo);
+				cond2 = lower.compareTo(nyId) <= 0 && nyId.compareTo(nyUpper) <= 0;
+			}
+			return cond || cond2;
+
+		} else {
+			return lower.compareTo(id) <= 0 && id.compareTo(upper) <= 0;
+		}	
+
 	}
 	
 	public static List<String> toString(List<NodeInterface> list) throws RemoteException {

@@ -30,13 +30,7 @@ public class ChordLookup {
 		// ask this node to find the successor of key
 		
 		// get the successor of the node
-		NodeInterface succ = null;
-		List<NodeInterface> fT = node.getFingerTable();
-		if (fT != null && fT.size() > 0) {
-			succ = node.getFingerTable().get(0);
-		} else {
-			succ = node.getSuccessor();
-		}
+		NodeInterface succ = node.getSuccessor();
 		
 		// get the stub for this successor (Util.getProcessStub())
 		NodeInterface succStub = Util.getProcessStub(succ.getNodeName(), succ.getPort());

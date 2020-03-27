@@ -79,23 +79,42 @@ public class FileManager {
      * @throws RemoteException 
      */
     public int distributeReplicastoPeers() throws RemoteException {
-    	int counter = 0;
+		int counter = 0;
+		
+		//TODO test...
     	
     	// Task1: Given a filename, make replicas and distribute them to all active peers such that: pred < replica <= peer
     	
-    	// Task2: assign a replica as the primary for this file. Hint, see the slide (project 3) on Canvas
+		// Task2: assign a replica as the primary for this file. Hint, see the slide (project 3) on Canvas
+		Random rnd = new Random();
+		int index = rnd.nextInt(Util.numReplicas); //eller -1? nextInt er ikkje inklusiv på den oppgitte verdien
     	
-    	// create replicas of the filename
+		// create replicas of the filename
+		createReplicaFiles();
     	
 		// iterate over the replicas
+		for (int i = 0; i < replicafiles.length; i++) {
+			BigInteger replica = replicafiles[i];
+			// for each replica, find its successor by performing findSuccessor(replica)
+			NodeInterface succ = chordnode.findSuccessor(replica);
+			
+			// call the addKey on the successor and add the replica
+			succ.addKey(replica);
+
+			// call the saveFileContent() on the successor
+			if (i == index) {
+				succ.saveFileContent(filename, replica, bytesOfFile, true);
+			} else {
+				succ.saveFileContent(filename, replica, bytesOfFile, false);
+			}
+			
+			// increment counter
+			counter++;
+		}
+		
     	
-    	// for each replica, find its successor by performing findSuccessor(replica)
     	
-    	// call the addKey on the successor and add the replica
     	
-    	// call the saveFileContent() on the successor
-    	
-    	// increment counter
     	
     		
 		return counter;
@@ -114,14 +133,20 @@ public class FileManager {
 		// Task: Given a filename, find all the peers that hold a copy of this file
 		
 		// generate the N replicas from the filename by calling createReplicaFiles()
+		createReplicaFiles();
 		
 		// it means, iterate over the replicas of the file
-		
-		// for each replica, do findSuccessor(replica) that returns successor s.
-		
-		// get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
-		
-		// save the metadata in the set succinfo.
+		for (int i = 0; i < replicafiles.length; i++) {
+			// for each replica, do findSuccessor(replica) that returns successor s.
+			BigInteger replica = replicafiles[i];
+			NodeInterface succ = chordnode.findSuccessor(replica);
+
+			// get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
+			Message metadata = succ.getFilesMetadata(replica);
+
+			// save the metadata in the set succinfo.
+			succinfo.add(metadata);
+		}
 		
 		this.activeNodesforFile = succinfo;
 		
@@ -137,12 +162,19 @@ public class FileManager {
 		// Task: Given all the active peers of a file (activeNodesforFile()), find which is holding the primary copy
 		
 		// iterate over the activeNodesforFile
+		for (Message peer : activeNodesforFile) {
+			// for each active peer (saved as Message)
+			if (peer.isPrimaryServer()) {
+				//TODO litt usikker på namnet...
+				return Util.getProcessStub(peer.getNodeIP(), peer.getPort());
+			}
 		
-		// for each active peer (saved as Message)
+			// use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
 		
-		// use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
+			// return the primary
+		}
 		
-		// return the primary
+		
 		
 		return null; 
 	}

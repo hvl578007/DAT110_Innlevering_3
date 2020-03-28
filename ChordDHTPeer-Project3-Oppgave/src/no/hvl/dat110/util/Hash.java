@@ -61,7 +61,15 @@ public class Hash {
 	
 	public static int bitSize() {
 		
-		int digestlen = 0;
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+
+		// get the digest length
+		int digestlen = md.getDigestLength();
 		
 		// find the digest length
 		

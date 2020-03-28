@@ -35,11 +35,6 @@ public class ChordLookup {
 		// get the stub for this successor (Util.getProcessStub())
 		NodeInterface succStub = Util.getProcessStub(succ.getNodeName(), succ.getPort());
 
-		System.out.println("Nodeid: " + node.getNodeID());
-		System.out.println("Nodeid+1: " + node.getNodeID().add(new BigInteger("1")));
-		System.out.println("Key: " + key);
-		System.out.println("Succ:" + succStub.getNodeID());
-
 		// check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the ComputeLogic
 		if (Util.computeLogic(key, node.getNodeID().add(new BigInteger("1")), succStub.getNodeID())) {
 			return succStub;

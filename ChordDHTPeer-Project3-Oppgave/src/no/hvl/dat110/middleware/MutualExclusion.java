@@ -67,26 +67,22 @@ public class MutualExclusion {
 		// start MutualExclusion algorithm
 		
 		// first, removeDuplicatePeersBeforeVoting. A peer can contain 2 replicas of a file. This peer will appear twice
-		removeDuplicatePeersBeforeVoting();
+		List<Message> peers = removeDuplicatePeersBeforeVoting();
 
 		// multicast the message to activenodes (hint: use multicastMessage)
-		//TODO idk kor activenodes komme frå...
-		//multicastMessage(message, );
+		multicastMessage(message, peers);
 
 		// check that all replicas have replied (permission)
-		//TODO gjer dette...
-		boolean permission = false;
+		boolean permission = areAllMessagesReturned(peers.size());
 
 		// if yes, acquireLock
 		if(permission) {
 			acquireLock();
 
 			// node.broadcastUpdatetoPeers
-			//TODO inni if eller ikkje?
 			node.broadcastUpdatetoPeers(updates);
 			
 			// clear the mutexqueue
-			//TODO inni if eller ikkje?
 			mutexqueue.clear();
 		}
 		
@@ -98,28 +94,46 @@ public class MutualExclusion {
 	private void multicastMessage(Message message, List<Message> activenodes) throws RemoteException {
 		
 		// iterate over the activenodes
-		
-		// obtain a stub for each node from the registry
-		
-		// call onMutexRequestReceived()
+		for (Message msg : activenodes) {
+			// obtain a stub for each node from the registry
+			NodeInterface stub = Util.getProcessStub(msg.getNodeIP(), msg.getPort());
+			// call onMutexRequestReceived()
+			stub.onMutexRequestReceived(message);
+		}
 		
 	}
 	
 	public void onMutexRequestReceived(Message message) throws RemoteException {
 		
 		// increment the local clock
-		
+		clock.increment();
+
 		// if message is from self, acknowledge, and call onMutexAcknowledgementReceived()
+		if (message.getNodeIP().equals(node.getNodeName())) {
+			message.setAcknowledged(true);
+			onMutexAcknowledgementReceived(message);
+		} else {
+			//TODO usikker om dette skal inn i else...
+			int caseid = -1;
+
+			// write if statement to transition to the correct caseid
+			// caseid=0: Receiver is not accessing shared resource and does not want to (send OK to sender)
+			if (!CS_BUSY && !WANTS_TO_ENTER_CS) {
+				caseid = 0;
+			}
+			// caseid=1: Receiver already has access to the resource (dont reply but queue the request)
+			else if (CS_BUSY) {
+				caseid = 1;
+			}
+			// caseid=2: Receiver wants to access resource but is yet to - compare own message clock to received message's clock
+			else if (WANTS_TO_ENTER_CS) {
+				caseid = 2;
+			}
 			
-		int caseid = -1;
+			// check for decision
+			doDecisionAlgorithm(message, mutexqueue, caseid);
+		}
 		
-		// write if statement to transition to the correct caseid
-		// caseid=0: Receiver is not accessing shared resource and does not want to (send OK to sender)
-		// caseid=1: Receiver already has access to the resource (dont reply but queue the request)
-		// caseid=2: Receiver wants to access resource but is yet to - compare own message clock to received message's clock
-		
-		// check for decision
-		doDecisionAlgorithm(message, mutexqueue, caseid);
 	}
 	
 	public void doDecisionAlgorithm(Message message, List<Message> queue, int condition) throws RemoteException {
@@ -132,9 +146,11 @@ public class MutualExclusion {
 			/** case 1: Receiver is not accessing shared resource and does not want to (send OK to sender) */
 			case 0: {
 				// get a stub for the sender from the registry
+				NodeInterface stub = Util.getProcessStub(procName, port);
 				// acknowledge message
+				message.setAcknowledged(true);
 				// send acknowledgement back by calling onMutexAcknowledgementReceived()
-				
+				stub.onMutexAcknowledgementReceived(message);
 				break;
 			}
 		
@@ -142,6 +158,7 @@ public class MutualExclusion {
 			case 1: {
 				
 				// queue this message
+				queue.add(message);
 				break;
 			}
 			
@@ -151,14 +168,34 @@ public class MutualExclusion {
 			 */
 			case 2: {
 				// check the clock of the sending process
+				int sendClock = message.getClock();
 				// own clock for the multicast message
+				int ownClock = clock.getClock();
 				// compare clocks, the lowest wins
+				if (sendClock < ownClock) {
+					//sender wins
+					message.setAcknowledged(true);
+					NodeInterface stub = Util.getProcessStub(procName, port);
+					stub.onMutexAcknowledgementReceived(message);
+				
 				// if clocks are the same, compare nodeIDs, the lowest wins
+				} else if (sendClock == ownClock) {
+					int comp = message.getNodeID().compareTo(node.getNodeID());
+					if (comp < 0) {
+						//sender wins
+						message.setAcknowledged(true);
+						NodeInterface stub = Util.getProcessStub(procName, port);
+						stub.onMutexAcknowledgementReceived(message);
+					} else {
+						//own wins
+						queue.add(message);
+					}
+				} else if (ownClock < sendClock) {
+					queue.add(message);
+				}
+				
 				// if sender wins, acknowledge the message, obtain a stub and call onMutexAcknowledgementReceived()
 				// if sender looses, queue it
-				
-				
-
 				break;
 			}
 			
@@ -170,24 +207,32 @@ public class MutualExclusion {
 	public void onMutexAcknowledgementReceived(Message message) throws RemoteException {
 		
 		// add message to queueack
+		queueack.add(message);
 		
 	}
 	
 	// multicast release locks message to other processes including self
-	public void multicastReleaseLocks(Set<Message> activenodes) {
+	public void multicastReleaseLocks(Set<Message> activenodes) throws RemoteException {
 		
 		// iterate over the activenodes
-		
-		// obtain a stub for each node from the registry
-		
-		// call releaseLocks()
-	
+		for (Message message : activenodes) {
+			
+			// obtain a stub for each node from the registry
+			NodeInterface stub = Util.getProcessStub(message.getNodeIP(), message.getPort());
+			// call releaseLocks()
+			stub.releaseLocks();
+		}
 	}
 	
 	private boolean areAllMessagesReturned(int numvoters) throws RemoteException {
 		// check if the size of the queueack is same as the numvoters
+		if (numvoters == queueack.size()) {
 		
-		// clear the queueack
+			// clear the queueack
+			//TODO usikker om inni eller utanfor?
+			queueack.clear();
+			return true;
+		}
 		
 		// return true if yes and false if no
 

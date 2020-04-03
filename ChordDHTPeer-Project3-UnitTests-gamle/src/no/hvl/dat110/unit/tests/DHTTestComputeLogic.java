@@ -44,16 +44,11 @@ class DHTTestComputeLogic {
 		BigInteger lower4 = new BigInteger("210821560651360572675896360671414673172");
 		BigInteger upper4 = new BigInteger("15618062003214643351512781541041391612");
 		
-		// lower5 < id5 < upper5  (true)
-		BigInteger id5 = new BigInteger("8256520967608282605234844990226290265");
-		BigInteger lower5 = new BigInteger("210821560651360572675896360671414673172");
-		BigInteger upper5 = new BigInteger("15618062003214643351512781541041391612");
 		
 		assertFalse(Util.computeLogic(id1, lower1, upper1));
 		assertTrue(Util.computeLogic(id2, lower2, upper2));
 		assertTrue(Util.computeLogic(id3, lower3, upper3));
 		assertTrue(Util.computeLogic(id4, lower4, upper4));
-		assertTrue(Util.computeLogic(id5, lower5, upper5));
 	}
 
 }

@@ -169,8 +169,10 @@ public class MutualExclusion {
 			case 2: {
 				// check the clock of the sending process
 				int sendClock = message.getClock();
+				
 				// own clock for the multicast message
-				int ownClock = clock.getClock();
+				//int ownClock = clock.getClock();
+				int ownClock = node.getMessage().getClock();
 				// compare clocks, the lowest wins
 				if (sendClock < ownClock) {
 					//sender wins

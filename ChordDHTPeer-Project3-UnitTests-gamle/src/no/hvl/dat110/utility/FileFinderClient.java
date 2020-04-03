@@ -27,7 +27,7 @@ public class FileFinderClient {
 		
 		FileManager fm = new FileManager(p2, Util.numReplicas);						// get the filemanager
 		
-		for(int i=0; i<files.length; i++) {											
+		for(int i=0; i<files.length; i++) {											// iterate over the files and distribute them to the running nodes
 			fm.requestActiveNodesForFile(files[i]);									// lookup the replica and return all active peers holding it
 			System.out.println();
 			System.out.println("=======");

@@ -5,10 +5,8 @@ package no.hvl.dat110.unit.tests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,9 +17,9 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.hvl.dat110.utility.FileDistributorClient;
 import no.hvl.dat110.rpc.interfaces.NodeInterface;
 import no.hvl.dat110.util.Util;
-import no.hvl.dat110.utility.FileDistributorClient;
 
 /**
  * @author tdoy
@@ -77,9 +75,9 @@ class DHTTestKeys {
 	}
 
 	@Test
-	void test() throws InterruptedException, NoSuchAlgorithmException, IOException {
+	void test() throws RemoteException, InterruptedException {
 		// distribute the files to the ring
-		FileDistributorClient.doDistribute();
+		new FileDistributorClient();
 		Thread.sleep(1000); 					// wait a bit and let the ring settle 
 		
 		// retrieve the processes stubs

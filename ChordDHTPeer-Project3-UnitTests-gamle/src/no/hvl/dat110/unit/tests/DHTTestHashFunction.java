@@ -43,6 +43,8 @@ class DHTTestHashFunction {
 		assertEquals(hash3, hash3expected);
 		assertEquals(hash4, hash4expected);
 		assertEquals(hash5, hash5expected);
+
+		assertEquals(Hash.addressSize(), new BigInteger("340282366920938463463374607431768211456"));
 		
 	}
 
